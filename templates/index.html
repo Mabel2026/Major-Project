@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redactly - Audio Privacy Redactor</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d); color: #333; min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; }
+        .container { max-width: 800px; width: 100%; background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); overflow: hidden; }
+        header { background: linear-gradient(to right, #2c3e50, #4a6491); color: white; padding: 30px; text-align: center; }
+        h1 { font-size: 2.5rem; margin-bottom: 10px; }
+        .content { padding: 40px; }
+        .upload-section { background: #f8f9fa; border: 2px dashed #4a6491; border-radius: 15px; padding: 40px 20px; text-align: center; margin: 20px 0; cursor: pointer; }
+        .upload-section:hover { background: #e9ecef; }
+        .file-input { display: none; }
+        .analyze-btn { width: 100%; padding: 15px; background: linear-gradient(to right, #2c3e50, #4a6491); color: white; border: none; border-radius: 10px; font-size: 1.2rem; margin: 20px 0; cursor: pointer; }
+        .analyze-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        .debug-section { background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 20px 0; }
+        .debug-content { display: none; background: #2c3e50; color: white; padding: 10px; border-radius: 5px; font-family: monospace; max-height: 200px; overflow-y: auto; }
+        .endpoint-buttons { display: flex; gap: 10px; margin: 10px 0; }
+        .endpoint-btn { flex: 1; padding: 8px; background: #6c757d; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        .endpoint-btn.test { background: #28a745; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Redactly</h1>
+            <div>Audio Privacy Redactor</div>
+        </header>
+        
+        <div class="content">
+            <h2>Upload Audio for Privacy Analysis</h2>
+            
+            <div class="debug-section">
+                <button onclick="toggleDebug()">🔧 Debug Mode</button>
+                <div class="debug-content" id="debugContent">Debug console...</div>
+                <div class="endpoint-buttons">
+                    <button class="endpoint-btn test" onclick="testEndpoint('/test')">Test /test</button>
+                    <button class="endpoint-btn test" onclick="testEndpoint('/health')">Test /health</button>
+                    <button class="endpoint-btn test" onclick="testEndpoint('/routes')">Test /routes</button>
+                    <button class="endpoint-btn" onclick="testAnalyze()">Test /analyze</button>
+                </div>
+            </div>
+            
+            <div class="upload-section" onclick="document.getElementById('fileInput').click()">
+                <div style="font-size: 4rem; color: #4a6491; margin-bottom: 20px;">🎤</div>
+                <div style="font-size: 1.5rem; color: #2c3e50;">
+                    <span style="color: #4a6491; text-decoration: underline; cursor: pointer;">Click to Browse Files</span>
+                    or drag and drop your audio file here
+                </div>
+                <input type="file" id="fileInput" class="file-input" accept=".mp3,.wav,.m4a,.ogg">
+                <div style="margin-top: 15px; color: #6c757d;">
+                    Supported formats: MP3, WAV, M4A, OGG • Max size: 50MB
+                </div>
+            </div>
+            
+            <button class="analyze-btn" id="analyzeBtn" disabled>Analyze Audio for Privacy Risks</button>
+        </div>
+    </div>
+
+    <script>
+        const debugContent = document.getElementById('debugContent');
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        let currentFile = null;
+
+        function debugLog(msg) {
+            debugContent.textContent += `[${new Date().toLocaleTimeString()}] ${msg}\n`;
+            debugContent.scrollTop = debugContent.scrollHeight;
+        }
+
+        function toggleDebug() {
+            debugContent.style.display = debugContent.style.display === 'block' ? 'none' : 'block';
+        }
+
+        async function testEndpoint(endpoint) {
+            try {
+                debugLog(`GET ${endpoint}`);
+                const response = await fetch(endpoint);
+                const data = await response.json();
+                debugLog(`✅ Response: ${JSON.stringify(data)}`);
+            } catch (error) {
+                debugLog(`❌ Error: ${error.message}`);
+            }
+        }
+
+        async function testAnalyze() {
+            try {
+                debugLog(`POST /analyze`);
+                const blob = new Blob(['test'], { type: 'audio/wav' });
+                const file = new File([blob], 'test.wav');
+                const formData = new FormData();
+                formData.append('audio_file', file);
+                
+                const response = await fetch('/analyze', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                debugLog(`✅ Response: ${JSON.stringify(data)}`);
+            } catch (error) {
+                debugLog(`❌ Error: ${error.message}`);
+            }
+        }
+
+        // File handling
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            if (e.target.files.length) {
+                currentFile = e.target.files[0];
+                analyzeBtn.disabled = false;
+                debugLog(`📁 Selected: ${currentFile.name}`);
+            }
+        });
+
+        analyzeBtn.addEventListener('click', async function() {
+            if (!currentFile) return;
+            
+            debugLog(`🚀 Analyzing: ${currentFile.name}`);
+            analyzeBtn.disabled = true;
+            
+            try {
+                const formData = new FormData();
+                formData.append('audio_file', currentFile);
+                
+                const response = await fetch('/analyze', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`Server error: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                debugLog(`✅ Analysis complete: ${JSON.stringify(data)}`);
+                alert('Analysis complete! Check debug console for details.');
+                
+            } catch (error) {
+                debugLog(`❌ Analysis failed: ${error.message}`);
+                alert('Error: ' + error.message);
+            } finally {
+                analyzeBtn.disabled = false;
+            }
+        });
+
+        // Initialize
+        debugLog('🔧 Debug mode ready');
+        testEndpoint('/test');
+    </script>
+</body>
+</html>
