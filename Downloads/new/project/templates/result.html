@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Metadata Result</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #ffffff;
+            padding: 20px;
+            color: #2c3e50;
+        }
+        h2, h3 { color: #e74c3c; }
+        .card {
+            background: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.10);
+            padding: 20px;
+            margin-bottom: 25px;
+            border-top: 4px solid #e74c3c;
+        }
+        img, video, audio {
+            border: 2px solid #f1c4c0;
+            margin-bottom: 8px;
+            max-width: 420px;
+            border-radius: 6px;
+        }
+        .no-meta {
+            color: #c0392b;
+            font-weight: bold;
+        }
+        .success {
+            color: #27ae60;
+            font-weight: bold;
+        }
+        .download-btn {
+            padding: 8px 15px;
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .download-btn:hover {
+            background-color: #c0392b;
+        }
+        .flex-row {
+            display: flex;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+        pre {
+            background: #fff5f5;
+            border: 1px solid #f1c4c0;
+            padding: 10px;
+            border-radius: 5px;
+            max-width: 100%;
+            overflow-x: auto;
+            font-size: 13px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="card">
+       <!-- <h2>Original vs Cleaned File</h2> -->
+
+        <div class="flex-row">
+            <!-- ORIGINAL -->
+            <div>
+                <h3>Original (before cleaning)</h3>
+                {% set ext = input_file.rsplit('.', 1)[-1].lower() %}
+
+                {% if ext in ['jpg','jpeg','png','webp','tiff','bmp'] %}
+                    <img src="{{ input_file }}?v={{ ts }}" alt="Original file">
+                {% elif ext in ['mp4','mov','avi','mkv'] %}
+                    <video src="{{ input_file }}?v={{ ts }}" controls></video>
+                {% else %}
+                    <audio src="{{ input_file }}?v={{ ts }}" controls></audio>
+                {% endif %}
+            </div>
+
+            <!-- CLEANED -->
+            <div>
+                <h3>Cleaned (after metadata removal)</h3>
+                <p class="success">
+                    All user metadata has been removed from the cleaned file.
+                    You can safely download and share it.
+                </p>
+
+                {% if ext in ['jpg','jpeg','png','webp','tiff','bmp'] %}
+                    <img src="{{ output_file }}?v={{ ts }}" alt="Cleaned file">
+                {% elif ext in ['mp4','mov','avi','mkv'] %}
+                    <video src="{{ output_file }}?v={{ ts }}" controls></video>
+                {% else %}
+                    <audio src="{{ output_file }}?v={{ ts }}" controls></audio>
+                {% endif %}
+
+                <br><br>
+                <a href="{{ url_for('download_file', filename=cleaned_filename) }}">
+                    <button class="download-btn">Download Cleaned File</button>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Metadata Before Removal (all detected metadata)</h3>
+        {% if metadata_before %}
+            <!-- Shows everything extracted from the original file -->
+            <pre>{{ metadata_before | tojson(indent=2) }}</pre>
+        {% else %}
+            <p class="no-meta">No metadata found in original file.</p>
+        {% endif %}
+    </div>
+
+    <div class="card">
+        <h3>Metadata After Removal (user metadata)</h3>
+        {% if metadata_after %}
+            <!-- After removal, extract_tags will usually give {"info": "No metadata found"} -->
+            <pre>{{ metadata_after | tojson(indent=2) }}</pre>
+        {% else %}
+            <p class="success">No user metadata present in cleaned file.</p>
+        {% endif %}
+    </div>
+
+</body>
+</html>

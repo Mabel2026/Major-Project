@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>REDACTLY – Your Media's Privacy Guardian</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #050608;
+      color: #ecf0f1;
+      min-height: 100vh;
+    }
+    .navbar {
+      background: #000;
+      padding: 12px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .logo {
+      font-size: 22px;
+      font-weight: 800;
+      color: #ff3b3b;
+      letter-spacing: 1px;
+    }
+    .nav-links a, .nav-links span {
+      margin-left: 18px;
+      font-size: 14px;
+      color: #bdc3c7;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .nav-links a:hover,
+    .nav-links span:hover { color: #ffffff; }
+    .btn-primary {
+      background: linear-gradient(90deg, #ff3b3b, #ff6b3b);
+      border: none;
+      color: #fff;
+      padding: 8px 18px;
+      border-radius: 18px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .shell {
+      padding: 40px 30px;
+      display: flex;
+      justify-content: center;
+    }
+    .main-card {
+      background: radial-gradient(circle at top left, #15171e 0, #050608 60%);
+      border-radius: 18px;
+      width: 100%;
+      max-width: 1100px;
+      min-height: 520px;
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      overflow: hidden;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.8);
+    }
+    .left-panel {
+      padding: 40px 50px;
+    }
+    h1.brand {
+      font-size: 26px;
+      color: #ffffff;
+      letter-spacing: 3px;
+      margin-bottom: 8px;
+    }
+    .brand span { color: #ff3b3b; }
+    .tagline {
+      font-size: 13px;
+      color: #9ea7b3;
+      margin-bottom: 22px;
+    }
+    .desc {
+      font-size: 13px;
+      color: #bdc3c7;
+      margin-bottom: 24px;
+      max-width: 420px;
+      line-height: 1.6;
+    }
+
+    .upload-pill-row {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 26px;
+    }
+    .upload-pill {
+      border-radius: 22px;
+      padding: 9px 20px;
+      border: 1px solid #ff4a4a;
+      color: #ffb3b3;
+      background: #050608;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .upload-pill.active {
+      border-color: #ffffff;
+      color: #ffffff;
+    }
+
+    #file-input-main,
+    #file-input-hide { display: none; }
+
+    .choose-file-btn {
+      margin-top: 12px;
+      display: inline-block;
+      padding: 8px 14px;
+      border-radius: 18px;
+      border: 1px solid #444b57;
+      color: #ecf0f1;
+      font-size: 12px;
+      cursor: pointer;
+      background: #181b21;
+    }
+    .analyze-bar { margin-top: 16px; }
+    .analyze-btn {
+      width: 280px;
+      padding: 12px 0;
+      border-radius: 26px;
+      background: linear-gradient(90deg, #ff3b3b, #ff6b3b);
+      border: none;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 18px rgba(255,59,59,0.5);
+    }
+    .file-label {
+      margin-top: 6px;
+      font-size: 11px;
+      color: #7f8c8d;
+    }
+
+    .hide-section {
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 1px solid #262b35;
+      font-size: 12px;
+      color: #bdc3c7;
+    }
+    .hide-title {
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #ff6b6b;
+    }
+    .hide-hint {
+      margin-bottom: 12px;
+    }
+
+    .right-panel {
+      position: relative;
+      padding: 0;
+      background: linear-gradient(130deg, #111216 0%, #050608 60%, #ff1d1d 60%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .scan-card {
+      background: #151820;
+      border-radius: 16px;
+      width: 280px;
+      height: 260px;
+      box-shadow: 0 0 30px rgba(255,50,50,0.5);
+      border: 1px solid #ff3434;
+      position: relative;
+      overflow: hidden;
+    }
+    .scan-top {
+      height: 40%;
+      border-bottom: 1px solid #ff3434;
+      display: flex;
+      align-items: flex-start;
+      justify-content: flex-start;
+      padding: 10px;
+    }
+    .chip {
+      padding: 4px 10px;
+      border-radius: 14px;
+      background: #2c2f36;
+      font-size: 10px;
+      color: #f2f2f2;
+    }
+    .scan-bottom {
+      height: 60%;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .scan-core {
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      background: #ff3434;
+      box-shadow: 0 0 20px rgba(255,52,52,0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .scan-label {
+      position: absolute;
+      right: 12px;
+      bottom: 18px;
+      padding: 4px 10px;
+      border-radius: 14px;
+      background: #2c2f36;
+      font-size: 10px;
+      color: #f2f2f2;
+    }
+  </style>
+</head>
+<body>
+  <div class="navbar">
+    <div class="logo">REDACTLY</div>
+    <div class="nav-links">
+      <a href="{{ url_for('home') }}">Upload</a>
+      <a href="{{ url_for('video_home') }}">Video Scan</a>
+      <span>Dashboard</span>
+      <span>History</span>
+      <button class="btn-primary">Get Started</button>
+    </div>
+  </div>
+
+  <div class="shell">
+    <div class="main-card">
+      <!-- LEFT -->
+      <div class="left-panel">
+        <h1 class="brand">REDACT<span>LY</span></h1>
+        <div class="tagline">Your Media's Privacy Guardian</div>
+
+        <p class="desc">
+          Detect and remove sensitive metadata from your images, videos, and audio before sharing.
+        </p>
+
+        <div class="upload-pill-row">
+          <button type="button" class="upload-pill">Upload Image</button>
+          <button type="button" class="upload-pill active">Upload Audio</button>
+          <button type="button" class="upload-pill" id="video-pill">Upload Video</button>
+          <button type="button" class="upload-pill" id="hide-pill">Hide Metadata</button>
+        </div>
+
+        <!-- MAIN upload form – normal behaviour -->
+        <form id="main-form" action="/analyze" method="post" enctype="multipart/form-data">
+          <label class="choose-file-btn">
+            Choose file…
+            <input id="file-input-main" type="file" name="file" required
+                   accept=".jpg,.jpeg,.png,.webp,.tiff,.bmp,.mp4,.mov,.avi,.mkv,.mp3,.wav,.m4a,.flac,.ogg">
+          </label>
+
+          <input type="hidden" name="hide_metadata" value="0">
+
+          <div class="analyze-bar">
+            <button type="submit" class="analyze-btn">Analyze</button>
+          </div>
+        </form>
+        <div class="file-label" id="file-label-main">No file selected.</div>
+
+        <!-- HIDE METADATA feature -->
+        <div class="hide-section" id="hide-section" style="display:none;">
+          <div class="hide-title">Hide Metadata Mode</div>
+          <div class="hide-hint">
+            Upload a file here.
+          </div>
+
+          <form id="hide-form" action="/analyze" method="post" enctype="multipart/form-data">
+            <label class="choose-file-btn">
+              Choose file (hide metadata)…
+              <input id="file-input-hide" type="file" name="file" required
+                     accept=".jpg,.jpeg,.png,.webp,.tiff,.bmp,.mp4,.mov,.avi,.mkv,.mp3,.wav,.m4a,.flac,.ogg">
+            </label>
+
+            <input type="hidden" name="hide_metadata" value="1">
+
+            <div class="analyze-bar">
+              <button type="submit" class="analyze-btn">Analyze (Hidden Metadata)</button>
+            </div>
+          </form>
+          <div class="file-label" id="file-label-hide">No file selected for hide mode.</div>
+        </div>
+      </div>
+
+      <!-- RIGHT -->
+      <div class="right-panel">
+        <div class="scan-card">
+          <div class="scan-top">
+            <div class="chip">VOICE</div>
+          </div>
+          <div class="scan-bottom">
+            <div class="scan-core">AI SCAN</div>
+            <div class="scan-label">PII</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  const fileMain = document.getElementById("file-input-main");
+  const labelMain = document.getElementById("file-label-main");
+  fileMain.addEventListener("change", () => {
+    labelMain.textContent = fileMain.files && fileMain.files[0]
+      ? "Selected file: " + fileMain.files[0].name
+      : "No file selected.";
+  });
+
+  const fileHide = document.getElementById("file-input-hide");
+  const labelHide = document.getElementById("file-label-hide");
+  if (fileHide) {
+    fileHide.addEventListener("change", () => {
+      labelHide.textContent = fileHide.files && fileHide.files[0]
+        ? "Selected file: " + fileHide.files[0].name
+        : "No file selected for hide mode.";
+    });
+  }
+
+  const hidePill = document.getElementById("hide-pill");
+  const hideSection = document.getElementById("hide-section");
+  hidePill.addEventListener("click", () => {
+    hideSection.style.display =
+      (hideSection.style.display === "none" || !hideSection.style.display)
+        ? "block"
+        : "none";
+  });
+
+  const videoPill = document.getElementById("video-pill");
+  videoPill.addEventListener("click", () => {
+    window.location.href = "{{ url_for('video_home') }}";
+  });
+</script>
+</body>
+</html>

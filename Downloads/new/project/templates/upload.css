@@ -1,0 +1,157 @@
+Upload.css
+
+.hero-wrapper {
+  min-height: 90vh;
+  background: radial-gradient(circle at top, #1a1a1a, #000);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.hero-card {
+  width: 90%;
+  max-width: 1200px;
+  height: 600px;
+  background: #0e0e0e;
+  border-radius: 18px;
+  display: flex;
+  overflow: hidden;
+  box-shadow: 0 40px 80px rgba(0, 0, 0, 0.8);
+}
+
+/* LEFT */
+.hero-left {
+  width: 50%;
+  padding: 80px 60px;
+  color: white;
+}
+
+.hero-left h1 span {
+  color: #ff1e1e;
+}
+
+.hero-left h2 {
+  margin-top: 10px;
+  font-size: 24px;
+  color: #ddd;
+}
+
+.hero-left p {
+  margin-top: 20px;
+  max-width: 420px;
+  line-height: 1.6;
+  color: #bbb;
+}
+
+/* UPLOAD BUTTONS */
+.upload-options {
+  display: flex;
+  gap: 15px;
+  margin-top: 30px;
+}
+
+.upload-options button {
+  background: #111;
+  border: 1px solid #ff1e1e;
+  color: white;
+  padding: 12px 22px;
+  border-radius: 28px;
+  cursor: pointer;
+}
+
+.upload-options button:hover {
+  background: #ff1e1e;
+  color: #000;
+}
+
+/* ANALYZE */
+.analyze-btn {
+  margin-top: 25px;
+  padding: 14px 36px;
+  border-radius: 30px;
+  border: none;
+  background: #ff1e1e;
+  color: white;
+  cursor: pointer;
+}
+
+.file-chip {
+  margin-top: 15px;
+  font-size: 13px;
+  color: #aaa;
+}
+
+/* RIGHT */
+.hero-right {
+  width: 50%;
+  position: relative;
+}
+
+.red-panel {
+  position: absolute;
+  right: -120px;
+  top: 0;
+  width: 300px;
+  height: 100%;
+  background: #ff1e1e;
+  transform: skewX(-20deg);
+}
+
+.visual-card {
+  position: absolute;
+  left: 60px;
+  top: 90px;
+  width: 360px;
+  height: 360px;
+  background: #111;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 30, 30, 0.4);
+  box-shadow: 0 0 60px rgba(255, 30, 30, 0.25);
+  overflow: hidden;
+}
+
+/* ANIMATION */
+.scan-line {
+  position: absolute;
+  width: 100%;
+  height: 2px;
+  background: red;
+  animation: scan 3s linear infinite;
+}
+
+@keyframes scan {
+  from { top: 0; }
+  to { top: 100%; }
+}
+
+.node {
+  position: absolute;
+  background: rgba(255, 30, 30, 0.15);
+  padding: 8px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  animation: float 4s ease-in-out infinite;
+}
+
+.n1 { top: 30px; left: 40px; }
+.n2 { bottom: 50px; right: 40px; animation-delay: 1s; }
+.n3 { top: 180px; left: 220px; animation-delay: 2s; }
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.shield-core {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #ff1e1e, #900);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}

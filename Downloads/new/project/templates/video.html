@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>REDACTLY – Video Privacy Scan</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #050608;
+      color: #ffffff;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .navbar {
+      background: #000;
+      padding: 12px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .logo {
+      font-size: 22px;
+      font-weight: 800;
+      color: #ff3b3b;
+      letter-spacing: 1px;
+    }
+    .nav-links a {
+      margin-left: 18px;
+      font-size: 14px;
+      color: #bdc3c7;
+      text-decoration: none;
+    }
+    .nav-links a:hover { color: #ffffff; }
+
+    .container {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 40px 20px;
+    }
+    .card {
+      background: #111317;
+      border-radius: 16px;
+      border: 2px solid #ff3b3b;
+      padding: 24px;
+      max-width: 720px;
+      width: 100%;
+      box-shadow: 0 0 25px rgba(255, 59, 59, 0.4);
+    }
+    h2 { margin-top: 0; color: #ff3b3b; }
+    p.subtitle {
+      font-size: 13px;
+      color: #bdc3c7;
+      margin-bottom: 18px;
+    }
+    input[type="file"], button {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: none;
+      margin-top: 10px;
+      font-size: 14px;
+    }
+    input[type="file"] {
+      background: #1a1d23;
+      color: #ffffff;
+    }
+    button {
+      background: linear-gradient(90deg, #ff3b3b, #ff6b3b);
+      color: #ffffff;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 16px rgba(255,59,59,0.6);
+    }
+    button:hover { background: #ff4d4d; }
+    #report {
+      margin-top: 18px;
+      max-height: 420px;
+      overflow-y: auto;
+    }
+    .det-card {
+      background: #1a1d23;
+      border-left: 4px solid #ff3b3b;
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      font-size: 13px;
+    }
+    .det-card img {
+      width: 100%;
+      margin-top: 6px;
+      border-radius: 6px;
+      border: 1px solid #ff3b3b;
+    }
+  </style>
+</head>
+<body>
+  <div class="navbar">
+    <div class="logo">REDACTLY</div>
+    <div class="nav-links">
+      <a href="{{ url_for('home') }}">Metadata Cleaner</a>
+      <a href="{{ url_for('video_home') }}">Video Scan</a>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="card">
+      <h2>Video Privacy Scan</h2>
+      <p class="subtitle">
+        Detect faces, on‑screen text, and sensitive information (phone numbers, IDs, emails)
+        in video frames. Each detection includes the exact timestamp and frame snapshot.
+      </p>
+
+      <form id="uploadForm">
+        <input type="file" name="video" accept="video/*" required>
+        <button type="submit">Analyze Video</button>
+      </form>
+
+      <div id="report"></div>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('uploadForm');
+    const report = document.getElementById('report');
+
+    form.onsubmit = async function(e) {
+      e.preventDefault();
+      report.innerHTML = "<p style='color:#ff6b6b;'>⏳ Analyzing video…</p>";
+
+      const formData = new FormData(form);
+      try {
+        const res = await fetch("{{ url_for('video_analyze_route') }}", {
+          method: "POST",
+          body: formData
+        });
+        const data = await res.json();
+
+        if (res.status !== 200) {
+          report.innerHTML = "<p style='color:#ff6b6b;'>Error: " + (data.error || "analysis failed") + "</p>";
+          return;
+        }
+
+        if (!data.detections || data.detections.length === 0) {
+          report.innerHTML = `
+            <h3 style="color:#ff3b3b;">${data.status}</h3>
+            <p>No sensitive content detected in ${data.video_name}.</p>
+          `;
+          return;
+        }
+
+        let html = `
+          <h3 style="color:#ff3b3b;">${data.status}</h3>
+          <p><b>Video:</b> ${data.video_name}</p>
+        `;
+
+        data.detections.forEach(d => {
+          html += `
+            <div class="det-card">
+              <b>Type:</b> ${d.type} <br>
+              <b>Timestamp:</b> ${d.timestamp}s<br>
+              ${d.content ? `<b>Text:</b> ${d.content}<br>` : ""}
+              ${d.matched ? `<b>Matched pattern:</b> ${d.matched}<br>` : ""}
+              <img src="${d.image}">
+            </div>
+          `;
+        });
+
+        report.innerHTML = html;
+      } catch (err) {
+        console.error(err);
+        report.innerHTML = "<p style='color:#ff6b6b;'>❌ Analysis failed</p>";
+      }
+    };
+  </script>
+</body>
+</html>

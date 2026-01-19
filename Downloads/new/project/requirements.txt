@@ -1,0 +1,4 @@
+Flask==2.3.2
+ffmpeg-python==0.2.0
+mutagen==1.46.0
+exifread==2.3.2
